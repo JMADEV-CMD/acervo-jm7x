@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14110f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Acervo Discográfico</title>
+<style>
+:root{--bg:#14110f;--card:#1f1b18;--card2:#2a2420;--tx:#f3ece4;--mut:#a89a8c;--acc:#e8a33d;--acc2:#c4572e;--ok:#5fae6e;--bad:#d9534f;--line:#3a322c;--r:12px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;flex:1;letter-spacing:.3px}
+header h1 span{color:var(--acc)}
+.chip{background:var(--card2);border-radius:20px;padding:4px 10px;font-size:13px;color:var(--mut);white-space:nowrap}
+.chip b{color:var(--acc)}
+nav{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:49px;z-index:4;background:var(--bg)}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:8px 4px;border-radius:8px;font-size:14px;cursor:pointer}
+nav button.on{background:var(--card2);color:var(--acc);font-weight:600}
+main{max-width:980px;margin:0 auto;padding:14px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 10px;font-size:15px;color:var(--acc)}
+button.b,label.b{background:var(--acc);color:#1b1206;border:0;border-radius:10px;padding:10px 14px;font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+button.b.sec,label.b.sec{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
+button.b.red{background:var(--bad);color:#fff}
+button.b:disabled{opacity:.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:0 0 auto}
+.grow{flex:1 1 160px!important}
+input,select,textarea{background:var(--card2);color:var(--tx);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:15px;width:100%;font-family:inherit}
+textarea{min-height:60px}
+label.f{display:block;font-size:12px;color:var(--mut);margin:0 0 3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.grid .full{grid-column:1/-1}
+#camwrap{position:relative;background:#000;border-radius:var(--r);overflow:hidden;display:none;margin-top:10px}
+#camwrap.on{display:block}
+#video{width:100%;max-height:52vh;object-fit:cover;display:block}
+#camwrap .aim{position:absolute;left:10%;right:10%;top:38%;height:24%;border:2px solid var(--acc);border-radius:10px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}
+#camwrap .aim::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:var(--acc2);opacity:.8}
+.muted{color:var(--mut);font-size:13px}
+.cands{display:flex;flex-direction:column;gap:8px}
+.cand,.item{display:flex;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px;cursor:pointer}
+.cand:hover,.item:hover{border-color:var(--acc)}
+.thumb{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#000;flex:0 0 56px}
+.thumb.ph{display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--mut)}
+.ci{flex:1;min-width:0}
+.ci .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci .s{font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.price{font-weight:700;color:var(--acc);white-space:nowrap;text-align:right}
+.price small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:5px;background:#3d2f22;color:var(--acc);margin-left:4px;vertical-align:middle}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.kpi .v{font-size:22px;font-weight:700;color:var(--acc)}
+.kpi .l{font-size:12px;color:var(--mut)}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(80px,32%) 1fr auto;gap:8px;align-items:center;font-size:13px}
+.bar .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .tr{background:var(--card2);border-radius:5px;height:14px;overflow:hidden}
+.bar .fl{background:linear-gradient(90deg,var(--acc2),var(--acc));height:100%}
+.bar .c{color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.two{grid-template-columns:1fr}}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 10px}
+#modal.on{display:flex}
+#modal .box{background:var(--card);border:1px solid var(--line);border-radius:14px;width:100%;max-width:680px;padding:16px}
+#modal .hd{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+#modal .hd img{width:96px;height:96px;border-radius:8px;object-fit:cover;background:#000}
+table.sg{width:100%;border-collapse:collapse;font-size:13px}
+table.sg td{padding:3px 6px;border-bottom:1px solid var(--line)}
+table.sg td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+table.sg tr.sel td{color:var(--acc);font-weight:600}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--acc);color:var(--tx);padding:10px 16px;border-radius:10px;z-index:30;display:none;max-width:90vw;text-align:center}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--mut);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.prog{height:8px;background:var(--card2);border-radius:5px;overflow:hidden;margin-top:8px}
+.prog div{height:100%;background:var(--acc);width:0}
+a{color:var(--acc)}
+.warn{background:#3a2a14;border:1px solid #6b4a1c;border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Acervo <span>Discográfico</span></h1>
+  <div class="chip" id="hdrCount">0 piezas</div>
+  <div class="chip"><b id="hdrValue">$0</b></div>
+</header>
+<nav>
+  <button data-v="scan" class="on">Escanear</button>
+  <button data-v="col">Colección</button>
+  <button data-v="res">Resumen</button>
+  <button data-v="cfg">Ajustes</button>
+</nav>
+<main>
+
+<!-- ESCANEAR -->
+<section id="v-scan" class="on">
+  <div class="warn" id="noToken" style="display:none">Sin token de Discogs la app solo obtiene datos básicos de MusicBrainz y <b>no puede consultar precios</b>. Configúralo en <a href="#" data-go="cfg">Ajustes</a>.</div>
+  <div class="card">
+    <h3>Escanear código de barras</h3>
+    <div class="row">
+      <button class="b" id="btnCam">📷 Iniciar cámara</button>
+      <label class="b sec">🖼️ Foto del código<input type="file" accept="image/*" capture="environment" id="photoIn" hidden></label>
+      <label class="row muted" style="gap:6px"><input type="checkbox" id="contMode" style="width:auto" checked> Modo continuo</label>
+    </div>
+    <div id="camwrap"><video id="video" playsinline muted></video><div class="aim"></div></div>
+    <div class="row" style="margin-top:10px">
+      <input class="grow" id="codeIn" inputmode="numeric" placeholder="Teclea el código o usa un lector USB y Enter" autocomplete="off">
+      <button class="b sec" id="btnCode">Buscar</button>
+    </div>
+  </div>
+  <div class="card" id="resultCard" style="display:none">
+    <h3 id="resultTitle">Resultados</h3>
+    <div id="results"></div>
+  </div>
+  <div class="card">
+    <h3>Sin código de barras</h3>
+    <p class="muted" style="margin-top:0">Para LPs y cassettes antiguos sin código: busca por artista y título o agrega la pieza a mano.</p>
+    <div class="row">
+      <input class="grow" id="qText" placeholder="Artista – título">
+      <select id="qFmt" style="width:auto"><option value="">Cualquier formato</option><option>CD</option><option>Vinyl</option><option>Cassette</option><option>DVD</option></select>
+      <button class="b sec" id="btnText">Buscar</button>
+      <button class="b sec" id="btnManual">✍️ Agregar manual</button>
+    </div>
+  </div>
+</section>
+
+<!-- COLECCIÓN -->
+<section id="v-col">
+  <div class="card">
+    <div class="row">
+      <input class="grow" id="fQ" placeholder="Buscar artista, título, sello, código…">
+      <select id="fFmt" style="width:auto"></select>
+      <select id="fGen" style="width:auto"></select>
+      <select id="fLang" style="width:auto"></select>
+      <select id="fSort" style="width:auto">
+        <option value="artista">Artista A-Z</option>
+        <option value="titulo">Título A-Z</option>
+        <option value="valor">Mayor valor</option>
+        <option value="anio">Año</option>
+        <option value="creado">Recientes</option>
+      </select>
+    </div>
+    <div class="muted" id="colInfo" style="margin-top:8px"></div>
+  </div>
+  <div class="cands" id="colList"></div>
+</section>
+
+<!-- RESUMEN -->
+<section id="v-res">
+  <div class="kpis" id="kpis"></div>
+  <div class="two">
+    <div class="card"><h3>Por formato</h3><div class="bars" id="bFmt"></div></div>
+    <div class="card"><h3>Valor por formato</h3><div class="bars" id="bFmtV"></div></div>
+    <div class="card"><h3>Por género</h3><div class="bars" id="bGen"></div></div>
+    <div class="card"><h3>Por idioma</h3><div class="bars" id="bLang"></div></div>
+    <div class="card"><h3>Por década</h3><div class="bars" id="bDec"></div></div>
+    <div class="card"><h3>Artistas con más títulos</h3><div class="bars" id="bArt"></div></div>
+    <div class="card"><h3>Por sello</h3><div class="bars" id="bLab"></div></div>
+    <div class="card"><h3>Por país de edición</h3><div class="bars" id="bCty"></div></div>
+  </div>
+  <div class="card"><h3>Las 20 piezas más valiosas</h3><div class="cands" id="top"></div></div>
+</section>
+
+<!-- AJUSTES -->
+<section id="v-cfg">
+  <div class="card">
+    <h3>Discogs (datos y precios)</h3>
+    <p class="muted" style="margin-top:0">Crea un token personal gratuito en <a href="https://www.discogs.com/settings/developers" target="_blank" rel="noopener">discogs.com/settings/developers</a> → “Generate new token”. Se guarda solo en este dispositivo.</p>
+    <div class="row"><input class="grow" id="sToken" placeholder="Token personal de Discogs" autocomplete="off"><button class="b sec" id="btnTest">Probar</button></div>
+    <p class="muted">Para que los precios sugeridos por condición salgan en pesos, en Discogs ve a Configuración → Vendedor y elige <b>MXN</b> como moneda. Si salen en dólares, captura aquí el tipo de cambio:</p>
+    <div class="grid">
+      <div><label class="f">Tipo de cambio USD→MXN</label><input id="sUsd" type="number" step="0.01" placeholder="ej. 18.50"></div>
+      <div><label class="f">Condición por defecto</label><select id="sCond"></select></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="b" id="btnSave">Guardar ajustes</button></div>
+  </div>
+  <div class="card">
+    <h3>Precios</h3>
+    <p class="muted" style="margin-top:0">Vuelve a consultar Discogs para cada pieza vinculada (~2 s por pieza por el límite de la API). Los valores que capturaste a mano no se tocan.</p>
+    <div class="row"><button class="b sec" id="btnUpdMissing">Actualizar solo sin precio</button><button class="b sec" id="btnUpdAll">Actualizar todos</button><button class="b sec" id="btnUpdStop" style="display:none">Detener</button></div>
+    <div class="prog" id="progBar" style="display:none"><div></div></div>
+    <div class="muted" id="progTxt"></div>
+  </div>
+  <div class="card">
+    <h3>Respaldo y exportación</h3>
+    <p class="muted" style="margin-top:0">Los datos viven en este navegador. Descarga un respaldo JSON con frecuencia; sirve también para pasar la colección a otro dispositivo.</p>
+    <div class="row">
+      <button class="b sec" id="btnCsv">⬇️ Exportar a Excel (CSV)</button>
+      <button class="b sec" id="btnJson">⬇️ Respaldo JSON</button>
+      <label class="b sec">⬆️ Restaurar respaldo<input type="file" accept=".json,application/json" id="jsonIn" hidden></label>
+      <button class="b red" id="btnWipe">Borrar todo</button>
+    </div>
+    <p class="muted" id="storeInfo"></p>
+  </div>
+</section>
+</main>
+
+<div id="modal"><div class="box" id="mbox"></div></div>
+<div id="toast"></div>
+
+<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script>
+"use strict";
+/* ========== utilidades ========== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const money=v=>v==null||isNaN(v)?'—':'$'+Number(v).toLocaleString('es-MX',{maximumFractionDigits:0});
+const cleanArtist=s=>String(s||'').replace(/\s\(\d+\)$/,'').replace(/\*$/,'').trim();
+let toastT;
+function toast(m,ms=2600){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',ms);}
+
+const CONDS=['Mint (M)','Near Mint (NM or M-)','Very Good Plus (VG+)','Very Good (VG)','Good Plus (G+)','Good (G)','Fair (F)','Poor (P)'];
+const COND_ES={'Mint (M)':'Nuevo / sellado (M)','Near Mint (NM or M-)':'Casi nuevo (NM)','Very Good Plus (VG+)':'Muy bueno + (VG+)','Very Good (VG)':'Muy bueno (VG)','Good Plus (G+)':'Bueno + (G+)','Good (G)':'Bueno (G)','Fair (F)':'Regular (F)','Poor (P)':'Malo (P)'};
+const FORMATS=['CD','DVD','Cassette','LP','Vinilo 7"','Vinilo 12"','Blu-ray','SACD','Box Set','VHS','Otro'];
+const LANG={spa:'Español',eng:'Inglés',por:'Portugués',ita:'Italiano',fra:'Francés',deu:'Alemán',jpn:'Japonés',kor:'Coreano',zho:'Chino',lat:'Latín',heb:'Hebreo',rus:'Ruso',mul:'Varios idiomas',zxx:'Instrumental'};
+const LANGS=['Español','Inglés','Portugués','Italiano','Francés','Alemán','Japonés','Varios idiomas','Instrumental','Otro'];
+const GEN_ES={Rock:'Rock',Pop:'Pop',Latin:'Latino',Electronic:'Electrónica',Jazz:'Jazz',Classical:'Clásica','Hip Hop':'Hip Hop','Funk / Soul':'Funk / Soul',Blues:'Blues',Reggae:'Reggae','Folk, World, & Country':'Folk / World / Country','Stage & Screen':'Soundtrack / Escena',Children:'Infantil',Religious:'Religiosa','Non-Music':'No musical','Brass & Military':'Banda / Militar'};
+
+/* ========== ajustes ========== */
+const S={token:'',usd:0,cond:'Near Mint (NM or M-)'};
+function loadS(){try{Object.assign(S,JSON.parse(localStorage.getItem('acervo_cfg')||'{}'));}catch(e){}}
+function saveS(){try{localStorage.setItem('acervo_cfg',JSON.stringify(S));}catch(e){}}
+
+/* ========== IndexedDB ========== */
+let idb, ITEMS=[];
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('acervo',1);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('items')){const s=d.createObjectStore('items',{keyPath:'id'});s.createIndex('barcode','barcode');}};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function req(mode,fn){return new Promise((res,rej)=>{const t=idb.transaction('items',mode);const q=fn(t.objectStore('items'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);});}
+const dbAll=()=>req('readonly',s=>s.getAll());
+const dbPut=it=>req('readwrite',s=>s.put(it));
+const dbDel=id=>req('readwrite',s=>s.delete(id));
+const dbClear=()=>req('readwrite',s=>s.clear());
+async function saveItem(it){it.actualizado=new Date().toISOString();await dbPut(it);const i=ITEMS.findIndex(x=>x.id===it.id);if(i>=0)ITEMS[i]=it;else ITEMS.push(it);refresh();}
+
+/* ========== APIs ========== */
+let lastD=0,lastMB=0;
+async function dGet(path,params={},tries=0){
+  if(!S.token) throw new Error('Falta el token de Discogs');
+  const u=new URL('https://api.discogs.com'+path);
+  for(const [k,v] of Object.entries(params)) if(v!=null&&v!=='') u.searchParams.set(k,v);
+  u.searchParams.set('token',S.token);
+  const w=lastD+1100-Date.now(); if(w>0) await sleep(w); lastD=Date.now();
+  const r=await fetch(u);
+  if(r.status===429&&tries<4){await sleep(6000);return dGet(path,params,tries+1);}
+  if(r.status===401) throw new Error('Token de Discogs inválido');
+  if(!r.ok){const e=new Error('Discogs respondió '+r.status);e.status=r.status;throw e;}
+  return r.json();
+}
+async function mbGet(path){
+  const w=lastMB+1100-Date.now(); if(w>0) await sleep(w); lastMB=Date.now();
+  const r=await fetch('https://musicbrainz.org/ws/2'+path+(path.includes('?')?'&':'?')+'fmt=json');
+  if(!r.ok) throw new Error('MusicBrainz '+r.status);
+  return r.json();
+}
+function variants(code){const v=[code];if(code.length===13&&code[0]==='0')v.push(code.slice(1));if(code.length===12)v.push('0'+code);return v;}
+function validEAN(c){if(!/^(\d{8}|\d{12}|\d{13})$/.test(c))return false;const d=c.split('').map(Number),k=d.pop();let s=0;d.reverse().forEach((n,i)=>s+=n*(i%2===0?3:1));return (10-s%10)%10===k;}
+
+function mapFormat(formats){
+  // formats: [{name,qty,descriptions}] (release) o ['CD','Album'] (search)
+  let names=[],desc=[];
+  if(Array.isArray(formats)&&typeof formats[0]==='string'){names=formats;desc=formats;}
+  else (formats||[]).forEach(f=>{names.push(f.name);desc.push(...(f.descriptions||[]),f.text||'');});
+  const has=x=>names.includes(x)||desc.includes(x);
+  const promo=desc.some(d=>/promo/i.test(d));
+  let f='Otro';
+  if(has('Box Set'))f='Box Set';
+  else if(has('Blu-ray'))f='Blu-ray';
+  else if(has('DVD')||has('DVD-Video'))f='DVD';
+  else if(has('SACD'))f='SACD';
+  else if(has('CD')||has('CDr')||has('Enhanced'))f='CD';
+  else if(has('Cassette'))f='Cassette';
+  else if(has('VHS'))f='VHS';
+  else if(has('Vinyl')||has('LP')){f=has('LP')?'LP':desc.some(d=>/7"/.test(d))?'Vinilo 7"':desc.some(d=>/12"/.test(d))?'Vinilo 12"':'LP';}
+  const qty=(formats||[]).reduce?(formats||[]).reduce((a,f)=>a+(+f.qty||0),0):0;
+  return {formato:f,promo,discos:qty||null,detalle:[...new Set(desc.filter(Boolean))].join(', ')};
+}
+function mbFormat(media){const n=(media||[]).map(m=>m.format||'').join(' ');if(/Blu-ray/.test(n))return'Blu-ray';if(/DVD/.test(n))return'DVD';if(/SACD/.test(n))return'SACD';if(/CD/.test(n))return'CD';if(/Cassette/.test(n))return'Cassette';if(/7"/.test(n))return'Vinilo 7"';if(/Vinyl|12"/.test(n))return'LP';return'Otro';}
+
+function toMXN(value,cur){if(value==null)return null;if(!cur||cur==='MXN')return +value;if(cur==='USD'&&S.usd>0)return +value*S.usd;return null;}
+
+async function fetchPrices(discogsId){
+  const out={precioMin:null,enVenta:null,sugerencias:null,sugMoneda:null};
+  try{const st=await dGet('/marketplace/stats/'+discogsId,{curr_abbr:'MXN'});
+    out.enVenta=st.num_for_sale??null;
+    if(st.lowest_price) out.precioMin=toMXN(st.lowest_price.value,st.lowest_price.currency);
+  }catch(e){console.warn(e);}
+  try{const sg=await dGet('/marketplace/price_suggestions/'+discogsId);
+    const o={};let cur=null;
+    for(const [k,v] of Object.entries(sg||{})){if(v&&v.value!=null){o[k]=v.value;cur=v.currency;}}
+    if(Object.keys(o).length){out.sugerencias=o;out.sugMoneda=cur;}
+  }catch(e){/* requiere ajustes de vendedor en Discogs */}
+  return out;
+}
+function computeValue(it){
+  if(it.valorFuente==='manual')return;
+  const s=it.sugerencias&&it.sugerencias[it.condicion];
+  const sv=s!=null?toMXN(s,it.sugMoneda):null;
+  if(sv!=null){it.valor=Math.round(sv);it.valorFuente='sugerido';}
+  else if(it.precioMin!=null){it.valor=Math.round(it.precioMin);it.valorFuente='mínimo en venta';}
+  else{it.valor=null;it.valorFuente='';}
+}
+
+async function buildFromDiscogs(id,base={}){
+  const r=await dGet('/releases/'+id,{curr_abbr:'MXN'});
+  const f=mapFormat(r.formats);
+  const lab=(r.labels||[])[0]||{};
+  const it=Object.assign({
+    id:uid(),barcode:'',cantidad:1,condicion:S.cond,ubicacion:'',notas:'',creado:new Date().toISOString()
+  },base,{
+    artista:(r.artists||[]).map(a=>cleanArtist(a.anv||a.name)).join(', ')||cleanArtist(r.artists_sort),
+    titulo:r.title,anio:r.year||null,pais:r.country||'',
+    sello:cleanArtist(lab.name),catno:lab.catno||'',
+    genero:(r.genres||[]).map(g=>GEN_ES[g]||g).join(', '),estilo:(r.styles||[]).join(', '),
+    formato:f.formato,formatoDetalle:f.detalle,promo:f.promo||!!base.promo,discos:f.discos,
+    discogsId:r.id,url:r.uri,portada:(r.images&&r.images[0]&&(r.images[0].uri150||r.images[0].uri))||base.portada||'',
+    have:r.community?.have??null,want:r.community?.want??null,
+    pistas:(r.tracklist||[]).filter(t=>t.type_==='track').length||null
+  });
+  if(!it.barcode){const bc=(r.identifiers||[]).find(x=>x.type==='Barcode');if(bc)it.barcode=bc.value.replace(/\D/g,'');}
+  Object.assign(it,await fetchPrices(r.id));
+  computeValue(it);
+  return it;
+}
+function buildFromMB(m,base={}){
+  const lab=(m['label-info']||[])[0]||{};
+  return Object.assign({id:uid(),cantidad:1,condicion:S.cond,ubicacion:'',notas:'',creado:new Date().toISOString()},base,{
+    artista:(m['artist-credit']||[]).map(a=>(a.name||'')+(a.joinphrase||'')).join('').trim(),
+    titulo:m.title,anio:m.date?+m.date.slice(0,4):null,pais:m.country||'',
+    sello:lab.label?.name||'',catno:lab['catalog-number']||'',formato:mbFormat(m.media),
+    idioma:LANG[m['text-representation']?.language]||base.idioma||'',mbid:m.id,
+    portada:base.portada||('https://coverartarchive.org/release/'+m.id+'/front-250'),
+    genero:base.genero||'',estilo:'',valor:null,valorFuente:''
+  });
+}
+
+/* ========== búsqueda por código ========== */
+let busy=false, lastMBres=[];
+async function lookup(code){
+  code=String(code).replace(/\D/g,'');
+  if(!code){toast('Código vacío');return;}
+  if(busy)return; busy=true;
+  stopCam(true);
+  $('#codeIn').value=code;
+  const rc=$('#resultCard'),box=$('#results');
+  rc.style.display='block';$('#resultTitle').textContent='Código '+code+(validEAN(code)?'':' (dígito verificador no coincide; revisa)');
+  const dup=ITEMS.filter(x=>x.barcode&&variants(code).includes(x.barcode));
+  box.innerHTML='<span class="spin"></span> Consultando Discogs y MusicBrainz…';
+  try{
+    const vs=variants(code);
+    const pD=(async()=>{if(!S.token)return[];for(const v of vs){const r=await dGet('/database/search',{barcode:v,type:'release',per_page:15});if(r.results&&r.results.length)return r.results;}return[];})();
+    const pM=mbGet('/release/?limit=8&query='+encodeURIComponent('barcode:('+vs.join(' OR ')+')')).then(r=>r.releases||[]).catch(()=>[]);
+    const [dR,mR]=await Promise.allSettled([pD,pM]);
+    const dres=dR.status==='fulfilled'?dR.value:[]; lastMBres=mR.status==='fulfilled'?mR.value:[];
+    let h='';
+    if(dup.length){h+='<div class="warn">Ya tienes este código: '+dup.map(d=>'<b>'+esc(d.artista)+' – '+esc(d.titulo)+'</b> ('+d.cantidad+' pza)').join('; ')+
+      '<div class="row" style="margin-top:8px"><button class="b" data-copy="'+dup[0].id+'">+1 copia</button><button class="b sec" data-edit="'+dup[0].id+'">Ver / editar</button></div></div>';}
+    if(dR.status==='rejected')h+='<div class="warn">'+esc(dR.reason.message)+'</div>';
+    if(dres.length){
+      h+='<p class="muted" style="margin-top:0">'+(dres.length>1?'Hay '+dres.length+' ediciones con este código. Elige la que coincide con tu ejemplar (país, sello, año):':'Toca para confirmar:')+'</p><div class="cands">';
+      dres.forEach(r=>{h+=candHTML({thumb:r.thumb||r.cover_image,t:r.title,s:[ (r.format||[]).join(', '),r.country,r.year,(r.label||[])[0],r.catno].filter(Boolean).join(' · '),attr:'data-dg="'+r.id+'"'});});
+      h+='</div>';
+    }else if(lastMBres.length){
+      h+='<p class="muted" style="margin-top:0">'+(S.token?'No está en Discogs; ':'')+'Resultados de MusicBrainz (sin precio):</p><div class="cands">';
+      lastMBres.forEach((m,i)=>{h+=candHTML({thumb:'https://coverartarchive.org/release/'+m.id+'/front-250',t:(m['artist-credit']||[]).map(a=>a.name+(a.joinphrase||'')).join('')+' - '+m.title,s:[mbFormat(m.media),m.country,(m.date||'').slice(0,4),m['label-info']?.[0]?.label?.name].filter(Boolean).join(' · '),attr:'data-mb="'+i+'"'});});
+      h+='</div>';
+    }else{
+      h+='<p>No se encontró en Discogs ni MusicBrainz.</p>';
+    }
+    h+='<div class="row" style="margin-top:10px"><button class="b sec" data-manual="'+code+'">✍️ Capturar a mano</button><button class="b sec" data-rescan="1">Escanear otro</button></div>';
+    box.innerHTML=h;
+    if(navigator.vibrate)navigator.vibrate(60);
+  }catch(e){box.innerHTML='<div class="warn">'+esc(e.message)+'</div>';}
+  finally{busy=false;}
+}
+function candHTML(o){
+  const img=o.thumb?'<img class="thumb" loading="lazy" src="'+esc(o.thumb)+'" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'thumb ph\',textContent:\'💿\'}))">':'<div class="thumb ph">💿</div>';
+  return '<div class="cand" '+o.attr+'>'+img+'<div class="ci"><div class="t">'+esc(o.t)+'</div><div class="s">'+esc(o.s)+'</div></div>'+(o.right||'')+'</div>';
+}
+function mbLangFor(){const m=lastMBres[0];return m?LANG[m['text-representation']?.language]||'':'';}
+
+async function pickDiscogs(id,barcode){
+  const box=$('#results');box.insertAdjacentHTML('afterbegin','<p id="ld"><span class="spin"></span> Obteniendo datos y precio…</p>');
+  try{
+    const it=await buildFromDiscogs(id,{barcode:barcode||''});
+    if(!it.idioma)it.idioma=mbLangFor();
+    if(lastMBres[0]&&!it.mbid)it.mbid=lastMBres[0].id;
+    openForm(it,true);
+  }catch(e){toast(e.message);}finally{$('#ld')?.remove();}
+}
+
+/* búsqueda por texto */
+async function textSearch(){
+  const q=$('#qText').value.trim();if(!q)return;
+  const rc=$('#resultCard'),box=$('#results');rc.style.display='block';$('#resultTitle').textContent='Búsqueda: '+q;
+  if(!S.token){box.innerHTML='<div class="warn">La búsqueda por texto necesita token de Discogs.</div>';return;}
+  lastMBres=[];
+  box.innerHTML='<span class="spin"></span> Buscando…';
+  try{const r=await dGet('/database/search',{q,type:'release',format:$('#qFmt').value,per_page:25});
+    if(!r.results.length){box.innerHTML='<p>Sin resultados.</p><button class="b sec" data-manual="">✍️ Capturar a mano</button>';return;}
+    box.innerHTML='<div class="cands">'+r.results.map(x=>candHTML({thumb:x.thumb,t:x.title,s:[(x.format||[]).join(', '),x.country,x.year,(x.label||[])[0],x.catno].filter(Boolean).join(' · '),attr:'data-dg="'+x.id+'" data-nobc="1"'})).join('')+'</div>';
+  }catch(e){box.innerHTML='<div class="warn">'+esc(e.message)+'</div>';}
+  rc.scrollIntoView({behavior:'smooth'});
+}
+
+/* ========== cámara ========== */
+let stream=null,scanning=false,zx=null,lastCode='',lastAt=0,detector=null;
+const video=$('#video');
+function camUI(on){$('#camwrap').classList.toggle('on',on);$('#btnCam').textContent=on?'⏹ Detener cámara':'📷 Iniciar cámara';}
+function onCode(raw){
+  const c=String(raw).replace(/\D/g,'');
+  if(!c)return;
+  if(c.length>=12&&!validEAN(c))return; // lectura dudosa, seguir intentando
+  const now=Date.now();if(c===lastCode&&now-lastAt<4000)return;lastCode=c;lastAt=now;
+  lookup(c);
+}
+async function startCam(){
+  if(scanning){stopCam();return;}
+  if(!navigator.mediaDevices?.getUserMedia){toast('Este navegador no da acceso a la cámara. Usa “Foto del código”.',4000);return;}
+  try{
+    if('BarcodeDetector' in window){
+      const fm=await BarcodeDetector.getSupportedFormats().catch(()=>[]);
+      if(fm.includes('ean_13')){
+        detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e'].filter(f=>fm.includes(f))});
+        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+        video.srcObject=stream;await video.play();scanning=true;camUI(true);
+        const loop=async()=>{if(!scanning)return;try{if(video.readyState>=2){const b=await detector.detect(video);if(b.length)onCode(b[0].rawValue);}}catch(e){}if(scanning)setTimeout(loop,120);};
+        loop();return;
+      }
+    }
+    if(!window.ZXing){toast('No se pudo cargar el lector. Revisa tu conexión.');return;}
+    const hints=new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+    zx=new ZXing.BrowserMultiFormatReader(hints,150);
+    scanning=true;camUI(true);
+    await zx.decodeFromConstraints({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}},video,(res)=>{if(res&&scanning)onCode(res.getText());});
+  }catch(e){scanning=false;camUI(false);toast('No se pudo abrir la cámara: '+(e.message||e.name),4000);}
+}
+function stopCam(keepFlag){
+  scanning=false;
+  if(zx){try{zx.reset();}catch(e){}zx=null;}
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  video.srcObject=null;camUI(false);
+}
+async function decodePhoto(file){
+  if(!file)return;
+  const url=URL.createObjectURL(file);
+  try{
+    if('BarcodeDetector' in window){
+      try{const img=await createImageBitmap(file);const d=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});const b=await d.detect(img);if(b.length){lookup(b[0].rawValue);return;}}catch(e){}
+    }
+    if(window.ZXing){
+      const r=new ZXing.BrowserMultiFormatReader();
+      const res=await r.decodeFromImageUrl(url);lookup(res.getText());return;
+    }
+    throw new Error();
+  }catch(e){toast('No se leyó el código. Acerca más la foto y que se vea nítido.',3500);}
+  finally{URL.revokeObjectURL(url);$('#photoIn').value='';}
+}
+
+/* ========== formulario ========== */
+let FORM=null,FORM_NEW=false;
+function opts(list,val,labels){return list.map(o=>'<option value="'+esc(o)+'"'+(o===val?' selected':'')+'>'+esc(labels?labels[o]||o:o)+'</option>').join('');}
+function openForm(it,isNew){
+  FORM=JSON.parse(JSON.stringify(it));FORM_NEW=!!isNew;
+  const f=FORM;
+  const fmtList=FORMATS.includes(f.formato)||!f.formato?FORMATS:[f.formato,...FORMATS];
+  const sg=f.sugerencias?'<table class="sg">'+CONDS.filter(c=>f.sugerencias[c]!=null).map(c=>'<tr class="'+(c===f.condicion?'sel':'')+'"><td>'+esc(COND_ES[c])+'</td><td>'+(f.sugMoneda==='MXN'||!f.sugMoneda?money(f.sugerencias[c]):esc(f.sugMoneda)+' '+(+f.sugerencias[c]).toFixed(2)+(toMXN(f.sugerencias[c],f.sugMoneda)!=null?' ≈ '+money(toMXN(f.sugerencias[c],f.sugMoneda)):''))+'</td></tr>').join('')+'</table>':'';
+  $('#mbox').innerHTML=
+  '<div class="hd">'+(f.portada?'<img src="'+esc(f.portada)+'" onerror="this.style.visibility=\'hidden\'">':'')+'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:17px">'+esc(f.titulo||'Nueva pieza')+'</div><div class="muted">'+esc(f.artista||'')+'</div>'+
+  (f.discogsId?'<div class="muted" style="margin-top:4px">Discogs: '+(f.enVenta!=null?f.enVenta+' en venta · ':'')+(f.have!=null?f.have+' lo tienen · '+f.want+' lo buscan':'')+' · <a href="'+esc(f.url||('https://www.discogs.com/release/'+f.discogsId))+'" target="_blank" rel="noopener">ver</a></div>':'')+
+  (f.formatoDetalle?'<div class="muted">'+esc(f.formatoDetalle)+'</div>':'')+'</div></div>'+
+  '<div class="grid">'+
+  fld('artista','Artista','full')+fld('titulo','Título / álbum','full')+
+  '<div><label class="f">Formato</label><select data-k="formato">'+opts(fmtList,f.formato)+'</select></div>'+
+  fld('cantidad','Cantidad','', 'number')+fld('anio','Año','','number')+fld('pais','País de edición')+
+  fld('sello','Sello')+fld('catno','Núm. de catálogo')+fld('genero','Género')+fld('estilo','Estilo / subgénero')+
+  '<div><label class="f">Idioma</label><input data-k="idioma" list="dlLang" value="'+esc(f.idioma||'')+'"></div>'+
+  '<div><label class="f">Condición</label><select data-k="condicion">'+opts(CONDS,f.condicion,COND_ES)+'</select></div>'+
+  fld('barcode','Código de barras')+fld('ubicacion','Ubicación (caja, estante)')+
+  '<div><label class="f">Valor estimado MXN <span id="vsrc">'+(f.valorFuente?'· '+esc(f.valorFuente):'')+'</span></label><input data-k="valor" type="number" step="1" value="'+(f.valor??'')+'"></div>'+
+  '<div><label class="f">Precio mínimo en venta</label><input disabled value="'+money(f.precioMin)+'"></div>'+
+  '<div class="full"><label class="row muted" style="gap:6px"><input type="checkbox" data-k="promo" style="width:auto"'+(f.promo?' checked':'')+'> Edición promocional / no venta</label></div>'+
+  (sg?'<div class="full"><label class="f">Precio sugerido por Discogs según condición</label>'+sg+'</div>':(f.discogsId?'<div class="full muted">Sin precios sugeridos por condición: en Discogs completa Configuración → Vendedor para habilitarlos.</div>':''))+
+  '<div class="full"><label class="f">Notas</label><textarea data-k="notas">'+esc(f.notas||'')+'</textarea></div>'+
+  '</div><datalist id="dlLang">'+LANGS.map(l=>'<option value="'+l+'">').join('')+'</datalist>'+
+  '<div class="row" style="margin-top:14px;justify-content:space-between"><div class="row"><button class="b" id="fSave">'+(FORM_NEW?'Agregar a la colección':'Guardar')+'</button><button class="b sec" id="fCancel">Cancelar</button></div>'+
+  '<div class="row">'+(f.discogsId?'<button class="b sec" id="fPrice">↻ Precio</button>':'')+(!FORM_NEW?'<button class="b red" id="fDel">Eliminar</button>':'')+'</div></div>';
+  $('#modal').classList.add('on');
+  $('#mbox [data-k=condicion]').onchange=e=>{FORM.condicion=e.target.value;if(FORM.valorFuente!=='manual'){computeValue(FORM);$('#mbox [data-k=valor]').value=FORM.valor??'';$('#vsrc').textContent=FORM.valorFuente?'· '+FORM.valorFuente:'';}};
+  $('#mbox [data-k=valor]').oninput=()=>{FORM.valorFuente='manual';$('#vsrc').textContent='· manual';};
+  $('#fSave').onclick=submitForm;
+  $('#fCancel').onclick=closeForm;
+  if($('#fDel'))$('#fDel').onclick=async()=>{if(!confirm('¿Eliminar esta pieza?'))return;await dbDel(FORM.id);ITEMS=ITEMS.filter(x=>x.id!==FORM.id);refresh();closeForm(true);toast('Eliminada');};
+  if($('#fPrice'))$('#fPrice').onclick=async e=>{e.target.disabled=true;e.target.innerHTML='<span class="spin"></span>';readForm();Object.assign(FORM,await fetchPrices(FORM.discogsId));if(FORM.valorFuente==='manual'&&!confirm('Tienes un valor manual. ¿Reemplazarlo con el de Discogs?')){}else{FORM.valorFuente='';computeValue(FORM);}openForm(FORM,FORM_NEW);};
+  function fld(k,l,cls='',type='text'){return '<div class="'+cls+'"><label class="f">'+l+'</label><input data-k="'+k+'" type="'+type+'" value="'+esc(f[k]??'')+'"></div>';}
+}
+function readForm(){
+  $$('#mbox [data-k]').forEach(el=>{const k=el.dataset.k;let v=el.type==='checkbox'?el.checked:el.value;
+    if(['cantidad','anio','valor'].includes(k))v=v===''?null:+v;FORM[k]=v;});
+  if(!FORM.cantidad||FORM.cantidad<1)FORM.cantidad=1;
+  if(FORM.barcode)FORM.barcode=String(FORM.barcode).replace(/\D/g,'');
+}
+async function submitForm(){
+  readForm();
+  if(!FORM.artista&&!FORM.titulo){toast('Captura al menos artista o título');return;}
+  await saveItem(FORM);
+  toast(FORM_NEW?'✔ Agregado: '+FORM.titulo:'✔ Guardado');
+  const wasNew=FORM_NEW;closeForm(true);
+  if(wasNew){$('#results').innerHTML='';$('#resultCard').style.display='none';$('#codeIn').value='';if($('#contMode').checked&&curView==='scan')startCam();}
+}
+function closeForm(){ $('#modal').classList.remove('on');FORM=null;}
+
+/* ========== vistas ========== */
+let curView='scan';
+function go(v){curView=v;$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$$('main section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));if(v!=='scan')stopCam();if(v==='res')renderRes();if(v==='col')renderCol();window.scrollTo(0,0);}
+const qty=x=>+x.cantidad||1;
+const val=x=>(+x.valor||0)*qty(x);
+function refresh(){
+  const n=ITEMS.reduce((a,x)=>a+qty(x),0),v=ITEMS.reduce((a,x)=>a+val(x),0);
+  $('#hdrCount').textContent=n.toLocaleString('es-MX')+' pieza'+(n===1?'':'s');$('#hdrValue').textContent=money(v);
+  $('#noToken').style.display=S.token?'none':'block';
+  fillFilters();
+  if(curView==='col')renderCol();if(curView==='res')renderRes();
+}
+function splitVals(s){return String(s||'').split(',').map(x=>x.trim()).filter(Boolean);}
+function fillFilters(){
+  const set=(sel,label,vals)=>{const cur=$(sel).value;$(sel).innerHTML='<option value="">'+label+'</option>'+[...vals].sort((a,b)=>a.localeCompare(b,'es')).map(v=>'<option'+(v===cur?' selected':'')+'>'+esc(v)+'</option>').join('');};
+  set('#fFmt','Formato',new Set(ITEMS.map(x=>x.formato).filter(Boolean)));
+  set('#fGen','Género',new Set(ITEMS.flatMap(x=>splitVals(x.genero))));
+  set('#fLang','Idioma',new Set(ITEMS.map(x=>x.idioma).filter(Boolean)));
+}
+function filtered(){
+  const q=$('#fQ').value.trim().toLowerCase(),fm=$('#fFmt').value,g=$('#fGen').value,l=$('#fLang').value,so=$('#fSort').value;
+  let r=ITEMS.filter(x=>(!fm||x.formato===fm)&&(!g||splitVals(x.genero).includes(g))&&(!l||x.idioma===l)&&
+    (!q||[x.artista,x.titulo,x.sello,x.catno,x.barcode,x.estilo,x.notas,x.ubicacion].join(' ').toLowerCase().includes(q)));
+  const cmp={artista:(a,b)=>(a.artista||'').localeCompare(b.artista||'','es')||(a.anio||0)-(b.anio||0),titulo:(a,b)=>(a.titulo||'').localeCompare(b.titulo||'','es'),
+    valor:(a,b)=>(+b.valor||0)-(+a.valor||0),anio:(a,b)=>(a.anio||9999)-(b.anio||9999),creado:(a,b)=>(b.creado||'').localeCompare(a.creado||'')}[so];
+  return r.sort(cmp);
+}
+function itemHTML(x){
+  return candHTML({thumb:x.portada,t:(x.artista||'¿?')+' – '+(x.titulo||''),
+    s:[x.formato+(qty(x)>1?' ×'+qty(x):''),x.anio,x.pais,x.sello,x.genero].filter(Boolean).join(' · '),
+    attr:'data-edit="'+x.id+'"',right:'<div class="price">'+(x.valor!=null?money(x.valor):'—')+(x.promo?'<span class="tag">PROMO</span>':'')+'<small>'+esc((COND_ES[x.condicion]||'').replace(/ \(.*\)/,''))+'</small></div>'});
+}
+let colLimit=150;
+function renderCol(){
+  const r=filtered();const n=r.reduce((a,x)=>a+qty(x),0),v=r.reduce((a,x)=>a+val(x),0);
+  $('#colInfo').textContent=r.length+' títulos · '+n+' piezas · valor '+money(v)+(r.length>colLimit?' · mostrando '+colLimit:'');
+  $('#colList').innerHTML=r.length?r.slice(0,colLimit).map(itemHTML).join('')+(r.length>colLimit?'<button class="b sec" id="more">Mostrar más</button>':''):'<p class="muted">Aún no hay piezas. Empieza en “Escanear”.</p>';
+  if($('#more'))$('#more').onclick=()=>{colLimit+=300;renderCol();};
+}
+function bars(sel,map,fmtV){
+  const e=[...map.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12);const max=e[0]?.[1]||1;
+  $(sel).innerHTML=e.length?e.map(([k,v])=>'<div class="bar"><div class="n" title="'+esc(k)+'">'+esc(k)+'</div><div class="tr"><div class="fl" style="width:'+(v/max*100).toFixed(1)+'%"></div></div><div class="c">'+(fmtV?money(v):v.toLocaleString('es-MX'))+'</div></div>').join(''):'<span class="muted">Sin datos</span>';
+}
+function count(fn,w=qty){const m=new Map();ITEMS.forEach(x=>{const ks=[].concat(fn(x)).filter(Boolean);(ks.length?ks:['Sin dato']).forEach(k=>m.set(k,(m.get(k)||0)+w(x)));});return m;}
+function renderRes(){
+  const n=ITEMS.reduce((a,x)=>a+qty(x),0),v=ITEMS.reduce((a,x)=>a+val(x),0);
+  const priced=ITEMS.filter(x=>x.valor!=null),noP=ITEMS.length-priced.length;
+  const arts=new Set(ITEMS.map(x=>(x.artista||'').toLowerCase()).filter(Boolean)).size;
+  const promos=ITEMS.filter(x=>x.promo).reduce((a,x)=>a+qty(x),0);
+  const avg=priced.length?priced.reduce((a,x)=>a+(+x.valor||0),0)/priced.length:null;
+  const k=[['Piezas',n.toLocaleString('es-MX')],['Títulos',ITEMS.length.toLocaleString('es-MX')],['Artistas',arts.toLocaleString('es-MX')],['Valor estimado',money(v)],['Valor promedio',money(avg)],['Sin precio',noP],['Promocionales',promos]];
+  $('#kpis').innerHTML=k.map(([l,x])=>'<div class="kpi"><div class="v">'+x+'</div><div class="l">'+l+'</div></div>').join('');
+  bars('#bFmt',count(x=>x.formato));
+  bars('#bFmtV',count(x=>x.formato,val),true);
+  bars('#bGen',count(x=>splitVals(x.genero)));
+  bars('#bLang',count(x=>x.idioma));
+  bars('#bDec',count(x=>x.anio?Math.floor(x.anio/10)*10+'s':''));
+  bars('#bArt',count(x=>x.artista,()=>1));
+  bars('#bLab',count(x=>x.sello));
+  bars('#bCty',count(x=>x.pais));
+  $('#top').innerHTML=[...priced].sort((a,b)=>(+b.valor||0)-(+a.valor||0)).slice(0,20).map(itemHTML).join('')||'<span class="muted">Sin precios aún</span>';
+}
+
+/* ========== actualización masiva de precios ========== */
+let updStop=false;
+async function updatePrices(onlyMissing){
+  if(!S.token){toast('Configura primero el token de Discogs');return;}
+  const list=ITEMS.filter(x=>x.discogsId&&(!onlyMissing||x.valor==null));
+  if(!list.length){toast('No hay piezas por actualizar');return;}
+  updStop=false;$('#btnUpdStop').style.display='';$('#progBar').style.display='block';
+  let i=0;
+  for(const it of list){
+    if(updStop)break;
+    i++;$('#progTxt').textContent=i+' / '+list.length+' · '+(it.artista||'')+' – '+(it.titulo||'');
+    $('#progBar div').style.width=(i/list.length*100)+'%';
+    try{Object.assign(it,await fetchPrices(it.discogsId));computeValue(it);await saveItem(it);}catch(e){console.warn(e);}
+  }
+  $('#btnUpdStop').style.display='none';$('#progTxt').textContent=(updStop?'Detenido en ':'Listo: ')+i+' de '+list.length+' piezas.';
+}
+
+/* ========== exportar / importar ========== */
+function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}
+const stamp=()=>new Date().toISOString().slice(0,10);
+function exportCSV(){
+  const cols=[['artista','Artista'],['titulo','Título'],['formato','Formato'],['cantidad','Cantidad'],['anio','Año'],['pais','País'],['sello','Sello'],['catno','Catálogo'],['genero','Género'],['estilo','Estilo'],['idioma','Idioma'],['condicion','Condición'],['promo','Promo'],['valor','Valor MXN'],['valorFuente','Fuente valor'],['precioMin','Mínimo en venta MXN'],['enVenta','Copias en venta'],['have','Lo tienen'],['want','Lo buscan'],['barcode','Código de barras'],['ubicacion','Ubicación'],['notas','Notas'],['discogsId','Discogs ID'],['url','URL Discogs'],['creado','Alta']];
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=[cols.map(c=>q(c[1])).join(',')].concat(filteredAll().map(x=>cols.map(([k])=>q(k==='promo'?(x.promo?'Sí':''):k==='condicion'?COND_ES[x[k]]||x[k]:x[k])).join(',')));
+  download('acervo-'+stamp()+'.csv',new Blob(['﻿'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+}
+const filteredAll=()=>[...ITEMS].sort((a,b)=>(a.artista||'').localeCompare(b.artista||'','es'));
+function exportJSON(){download('acervo-respaldo-'+stamp()+'.json',new Blob([JSON.stringify({app:'acervo',version:1,fecha:new Date().toISOString(),items:ITEMS},null,1)],{type:'application/json'}));}
+async function importJSON(file){
+  try{const d=JSON.parse(await file.text());const arr=Array.isArray(d)?d:d.items;if(!Array.isArray(arr))throw new Error('Formato no reconocido');
+    const replace=ITEMS.length&&confirm('¿Reemplazar la colección actual ('+ITEMS.length+' títulos)?\nAceptar = reemplazar · Cancelar = combinar');
+    if(replace){await dbClear();ITEMS=[];}
+    for(const it of arr){if(!it.id)it.id=uid();await dbPut(it);const i=ITEMS.findIndex(x=>x.id===it.id);if(i>=0)ITEMS[i]=it;else ITEMS.push(it);}
+    refresh();toast('Importados '+arr.length+' títulos');
+  }catch(e){toast('No se pudo importar: '+e.message,4000);}finally{$('#jsonIn').value='';}
+}
+
+/* ========== eventos ========== */
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-v],[data-go],[data-dg],[data-mb],[data-edit],[data-copy],[data-manual],[data-rescan]');if(!t)return;
+  if(t.dataset.v){go(t.dataset.v);return;}
+  if(t.dataset.go){e.preventDefault();go(t.dataset.go);return;}
+  if(t.dataset.dg){pickDiscogs(t.dataset.dg,t.dataset.nobc?'':$('#codeIn').value.replace(/\D/g,''));return;}
+  if(t.dataset.mb!=null){const m=lastMBres[+t.dataset.mb];openForm(buildFromMB(m,{barcode:$('#codeIn').value.replace(/\D/g,'')}),true);return;}
+  if(t.dataset.edit){const it=ITEMS.find(x=>x.id===t.dataset.edit);if(it)openForm(it,false);return;}
+  if(t.dataset.copy){const it=ITEMS.find(x=>x.id===t.dataset.copy);if(it){it.cantidad=qty(it)+1;await saveItem(it);toast('Ahora tienes '+it.cantidad+' copias');$('#resultCard').style.display='none';if($('#contMode').checked)startCam();}return;}
+  if(t.dataset.manual!=null){openForm({id:uid(),barcode:t.dataset.manual,cantidad:1,condicion:S.cond,formato:'CD',creado:new Date().toISOString(),valor:null,valorFuente:''},true);return;}
+  if(t.dataset.rescan){$('#resultCard').style.display='none';startCam();return;}
+});
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeForm();});
+$('#btnCam').onclick=startCam;
+$('#photoIn').onchange=e=>decodePhoto(e.target.files[0]);
+$('#btnCode').onclick=()=>lookup($('#codeIn').value);
+$('#codeIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookup($('#codeIn').value);}});
+$('#btnText').onclick=textSearch;
+$('#qText').addEventListener('keydown',e=>{if(e.key==='Enter')textSearch();});
+$('#btnManual').onclick=()=>openForm({id:uid(),barcode:'',cantidad:1,condicion:S.cond,formato:'LP',creado:new Date().toISOString(),valor:null,valorFuente:''},true);
+['#fQ','#fFmt','#fGen','#fLang','#fSort'].forEach(s=>$(s).addEventListener('input',()=>{colLimit=150;renderCol();}));
+$('#btnSave').onclick=()=>{S.token=$('#sToken').value.trim();S.usd=+$('#sUsd').value||0;S.cond=$('#sCond').value;saveS();refresh();toast('Ajustes guardados');};
+$('#btnTest').onclick=async()=>{S.token=$('#sToken').value.trim();try{const r=await dGet('/oauth/identity');saveS();refresh();toast('✔ Conectado como '+r.username);}catch(e){toast(e.message,4000);}};
+$('#btnUpdMissing').onclick=()=>updatePrices(true);
+$('#btnUpdAll').onclick=()=>updatePrices(false);
+$('#btnUpdStop').onclick=()=>{updStop=true;};
+$('#btnCsv').onclick=exportCSV;
+$('#btnJson').onclick=exportJSON;
+$('#jsonIn').onchange=e=>e.target.files[0]&&importJSON(e.target.files[0]);
+$('#btnWipe').onclick=async()=>{if(!ITEMS.length)return;if(prompt('Esto borra TODA la colección de este dispositivo. Escribe BORRAR para confirmar')!=='BORRAR')return;await dbClear();ITEMS=[];refresh();toast('Colección borrada');};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCam();});
+
+/* ========== inicio ========== */
+(async function init(){
+  loadS();
+  $('#sToken').value=S.token||'';$('#sUsd').value=S.usd||'';$('#sCond').innerHTML=opts(CONDS,S.cond,COND_ES);
+  try{idb=await openDB();ITEMS=await dbAll();}catch(e){toast('Este navegador no permite guardar datos localmente',5000);}
+  try{if(navigator.storage?.persist){const p=await navigator.storage.persist();$('#storeInfo').textContent=p?'Almacenamiento persistente activado.':'Consejo: agrega la app a la pantalla de inicio para que el navegador no borre los datos.';}}catch(e){}
+  refresh();
+})();
+</script>
+</body>
+</html>
